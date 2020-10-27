@@ -1,0 +1,47 @@
+name: 'Version'
+description: 'Create new patch version based on latest release'
+inputs:
+  base-version:
+    description: 'Major.minor version to use'
+    required: true
+    default: '1.0'
+outputs:
+  version: 
+    description: 'Major.minor.patch[-pr-number-commits]'
+    value: ${{ steps.build-version.outputs.version }}
+  prerelease:
+    description: 'is this a PR?'
+    value: ${{ steps.build-version.outputs.prerelease }}
+runs:
+  using: "composite"
+  steps: 
+    - id: build-version
+      run: |
+          new_major=$(echo "${{ inputs.base-version }}" | cut -f 1 -d '.')
+          new_minor=$(echo "${{ inputs.base-version }}" | cut -f 2 -d '.')
+          release_json=$(curl --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest)
+          latest_release=$(echo "$release_json" | jq -r '.tag_name')
+          if [ "$latest_release" == "null" ]
+          then
+          latest_release="$new_major.$new_minor.0"
+          fi
+          old_major=$(echo $latest_release | cut -f 1 -d '.')
+          old_minor=$(echo $latest_release | cut -f 2 -d '.')
+          old_patch=$(echo $latest_release | cut -f 3 -d '.')
+          if [ ("$old_major" -lt "$new_major") -o ("$old_minor" -lt "$new_minor") ]
+          then
+          new_patch = "1"
+          else
+          new_patch=$((old_patch+1))
+          fi
+          new_version="$new_major.$new_minor.$new_patch"
+          pull_number=$(jq -r .pull_request.number "$GITHUB_EVENT_PATH")
+          if [ "$pull_number" != "null" ]
+          then
+          commit_count=$(jq -r .pull_request.commits "$GITHUB_EVENT_PATH")
+          new_version="$new_version-pr-$pull_number-$commit_count"
+          echo ::set-output name=prerelease::true
+          else
+          echo ::set-output name=prerelease::false
+          fi
+          echo ::set-output name=version::"$new_version" }}
