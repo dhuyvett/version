@@ -21,7 +21,7 @@ runs:
           new_major=$(echo "${{ inputs.base-version }}" | cut -f 1 -d '.')
           new_minor=$(echo "${{ inputs.base-version }}" | cut -f 2 -d '.')
           echo "new_major: $new_major, new_minor: $new_minor"
-          release_json=$(curl --header 'authorization: Bearer $GITHUB_TOKEN' https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest)
+          release_json=$(curl --header "authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest)
           latest_release=$(echo "$release_json" | jq -r '.tag_name')
           if [ "$latest_release" == "null" ]
           then
