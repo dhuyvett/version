@@ -16,6 +16,7 @@ runs:
   using: "composite"
   steps: 
     - id: build-version
+      shell: bash
       run: |
           new_major=$(echo "${{ inputs.base-version }}" | cut -f 1 -d '.')
           new_minor=$(echo "${{ inputs.base-version }}" | cut -f 2 -d '.')
