@@ -18,6 +18,7 @@ runs:
     - id: build-version
       shell: bash
       run: |
+          echo GITHUB_REPOSITORY: $GITHUB_REPOSITORY
           new_major=$(echo "${{ inputs.base-version }}" | cut -f 1 -d '.')
           new_minor=$(echo "${{ inputs.base-version }}" | cut -f 2 -d '.')
           release_json=$(curl --header 'authorization: Bearer $GITHUB_TOKEN' https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest)
@@ -45,4 +46,4 @@ runs:
           else
           echo ::set-output name=prerelease::false
           fi
-          echo ::set-output name=version::"$new_version" }}
+          echo ::set-output name=version::"$new_version"
