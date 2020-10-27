@@ -29,7 +29,7 @@ runs:
           old_major=$(echo $latest_release | cut -f 1 -d '.')
           old_minor=$(echo $latest_release | cut -f 2 -d '.')
           old_patch=$(echo $latest_release | cut -f 3 -d '.')
-          if [ ("$old_major" -lt "$new_major") -o ("$old_minor" -lt "$new_minor") ]
+          if [ "$old_major" -lt "$new_major" -o "$old_minor" -lt "$new_minor" ]
           then
           new_patch = "1"
           else
