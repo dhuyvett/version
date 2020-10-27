@@ -20,24 +20,19 @@ runs:
       run: |
           new_major=$(echo "${{ inputs.base-version }}" | cut -f 1 -d '.')
           new_minor=$(echo "${{ inputs.base-version }}" | cut -f 2 -d '.')
-          echo "new_major: $new_major, new_minor: $new_minor"
           release_json=$(curl --header "authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest)
           latest_release=$(echo "$release_json" | jq -r '.tag_name')
           if [ "$latest_release" == "null" ]
           then
-          echo "latest release not found"
           latest_release="$new_major.$new_minor.0"
           fi
           old_major=$(echo $latest_release | cut -f 1 -d '.')
           old_minor=$(echo $latest_release | cut -f 2 -d '.')
           old_patch=$(echo $latest_release | cut -f 3 -d '.')
-          echo "old_major: $old_major, old_minor: $old_minor, old_patch: $old_patch"
           if [ "$old_major" -lt "$new_major" -o "$old_minor" -lt "$new_minor" ]
           then
-          echo "setting new_patch to 1"
           new_patch = "1"
           else
-          echo "incrementing old_patch"
           new_patch=$((old_patch+1))
           fi
           new_version="$new_major.$new_minor.$new_patch"
